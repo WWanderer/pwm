@@ -12,6 +12,7 @@ func main() {
 		os.Exit(1)
 	}
 	// fmt.Println(entryExists(f, e))
-	CreateEntry(f)
-	CreateEntry(f)
+	ReadEntry(f, "zoomer.org")
+	ReadEntry(f, "zoomer.org")
+
 }

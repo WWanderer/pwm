@@ -32,7 +32,8 @@ func CreateEntry(f *os.File) {
 		return 
 	}
 
-	if entryExists(f, tmp) {
+	exists := entryExists(f, tmp)
+	if exists {
 		fmt.Println("Entry already exists")
 		return
 	}
@@ -52,3 +53,23 @@ func CreateEntry(f *os.File) {
 	}
 
 }
+
+func ReadEntry(f *os.File, site string) {
+	e := getEntry(f, site)
+	if e == nil {
+		fmt.Println("Entry not found")
+		return
+	}
+
+	fmt.Printf("Site: %s\nUsername: %s\nPassword: %s\n", e.Site, e.Uname, e.Pw)
+}
+
+func UpdateEntry(f *os.File, site string) {
+	e := getEntry(f, site)
+	if e == nil {
+		fmt.Println("Entry not found")
+		return 
+	}
+	
+}
+
