@@ -34,7 +34,7 @@
 + util.go
 	+ jsonParse ? (see: https://blog.golang.org/json-and-go)
 	+ jsonWrite ?
-	+ findEntry ?
+	+ entryExists
 	
 
 
@@ -42,3 +42,4 @@
 + encryption and decryption
 + how to manage the master password
 + go project structure
++ capture terminal screen
