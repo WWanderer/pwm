@@ -1,19 +1,15 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	"os"
 )
 
 func main() {
-	// var e = Entry{"zoomer.org", "kevin", "bazinga"}
-	f, err := openOrCreate("test")
-	if err != nil {
-		fmt.Println("error opening file")
-		os.Exit(1)
-	}
-	entries := loadFile(f)
-	for _, entry := range(entries) {
-		fmt.Println(entry)
-	}
+	fileName := os.Args[1]
+	var e = Entry{"zoomer.org", "kevin", "bazinga"}
+
+	entries := loadFile(fileName)
+
+	DeleteEntry(fileName, entries, e.Site)
 }

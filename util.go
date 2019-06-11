@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"io"
-	"bytes"
 )
 
 type Entry struct {
@@ -14,89 +12,97 @@ type Entry struct {
 	Pw    string
 }
 
-func openOrCreate(name string) (*os.File, error) {
-	return os.OpenFile(name, os.O_CREATE|os.O_RDWR, 0644)
+func openOrCreate(fileName string) (*os.File, error) {
+	return os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, 0644)
 }
 
-func loadFile(f *os.File) []Entry {
-	dec := json.NewDecoder(f)
-	lineCount, err := lineCounter(f) 
+func loadFile(fileName string) []Entry {
+	file, err := openOrCreate(fileName)
 	if err != nil {
-		fmt.Println("error counting lines")
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	fmt.Println(lineCount)
-	entries := make([]Entry, lineCount*2)
+	defer file.Close()
+
+	dec := json.NewDecoder(file)
+	var entries []Entry
 
 	for dec.More() {
-		var v Entry
-		fmt.Println(v)
-		if err := dec.Decode(&v); err != nil {
-			fmt.Println("error parsing file")
+		var e Entry
+		if err := dec.Decode(&e); err != nil {
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
-		entries = append(entries, v)
+		entries = append(entries, e)
 	}
 	return entries
 }
 
-func writeToFile() {}
+func writeToFile(fileName string, entries []Entry) error {
+	var buffer [][]byte
 
-// works only once; maybe some sort of static state???
-// one second invocation dec.More() returns false
-func entryExists(f *os.File, e Entry) bool {
-	dec := json.NewDecoder(f)
-
-	for dec.More() {
-		var v Entry
-		if err := dec.Decode(&v); err != nil {
-			fmt.Println("error parsing database")
-			os.Exit(1) 
-		}
-
-		if v.Site == e.Site && v.Uname == e.Uname {
-			return true
-		}
+	var file, err = os.OpenFile(fileName, os.O_RDWR|os.O_TRUNC, 0644)
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
 	}
+	defer file.Close()
 
-	return false
-}
-
-// probaly same issue as entryExists
-func getEntry(f *os.File, site string) *Entry {
-	dec := json.NewDecoder(f)
-	
-
-	for dec.More() {
-		var v Entry
-		if err := dec.Decode(&v); err != nil {
-			fmt.Println("error parsing database")
-			os.Exit(1)
+	for _, entry := range entries {
+		// encode each entry to json
+		e, err := json.Marshal(entry)
+		if err != nil {
+			fmt.Println(err.Error())
+			return err
 		}
-
-		if v.Site == site {
-			return &v
-		}	
+		e = append(e, '\n')
+		// put them in a buffer
+		buffer = append(buffer, e)
 	}
-
+	// TODO encrypt buffer
+	// write buffer to file
+	for i := range buffer {
+		file.Write(buffer[i])
+	}
 	return nil
 }
 
-func lineCounter(r io.Reader) (int, error) {
-    buf := make([]byte, 32*1024)
-    count := 0
-    lineSep := []byte{'\n'}
+func entryExists(e Entry, entries []Entry) bool {
+	return false
+}
 
-    for {
-        c, err := r.Read(buf)
-        count += bytes.Count(buf[:c], lineSep)
+// return an empty entry in case of problem
+// TODO fix not accepting empty input
+func buildEntry() Entry {
+	var tmp Entry
 
-        switch {
-        case err == io.EOF:
-            return count+1, nil
+	fmt.Printf("site name\n~> ")
+	_, err := fmt.Scan(&tmp.Site)
+	if err != nil {
+		fmt.Println(err.Error())
+		return Entry{}
+	}
 
-        case err != nil:
-            return count+1, err
-        }
-    }
+	fmt.Printf("username\n~> ")
+	_, err = fmt.Scan(&tmp.Uname)
+	if err != nil {
+		fmt.Println(err.Error())
+		return Entry{}
+	}
+
+	// TODO suggest either user entry or pw generation
+	fmt.Printf("password\n~> ")
+	_, err = fmt.Scan(&tmp.Pw)
+	if err != nil {
+		fmt.Println(err.Error())
+		return Entry{}
+	}
+	return tmp
+}
+
+func isValid(e Entry) bool {
+	if e.Site == "" && e.Uname == "" && e.Pw == "" {
+		return false
+	}
+	return true
 }

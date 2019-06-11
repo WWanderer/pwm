@@ -28,8 +28,8 @@
 	+ update(entry)
 	+ delete(entry)
 + crypto.go
-	+ encrypt(file)
-	+ decrypt(file)
+	+ encrypt([]Entry)
+	+ decrypt([]Entry)
 	+ verifyPassword(password)
 + util.go
 	+ jsonParse ? (see: https://blog.golang.org/json-and-go)
@@ -38,10 +38,9 @@
 	
 ## i/o
 I will probably copy file content to memory, in an Entry slice, allowing for easier replacement
-and deletion. The slice will be written to file after each operation.
+and deletion. The slice will be written to file after each operation. 
 
 ## not yet decided/informed about
 + encryption and decryption
 + how to manage the master password
-+ go project structure
 + capture terminal screen

@@ -1,79 +1,95 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 )
 
-func CreateEntry(f *os.File) {
-	var tmp Entry
-
-	fmt.Printf("site name\n~> ")
-	_, err := fmt.Scan(&tmp.Site)
-	if err != nil {
-		fmt.Println("Error writing site name")
+func CreateEntry(fileName string, entries []Entry) {
+	var tmp Entry = buildEntry()
+	if !isValid(tmp) {
+		fmt.Println("error reading your input")
 		return
 	}
 
-	fmt.Printf("username\n~> ")
-	_, err = fmt.Scan(&tmp.Uname)
-	if err != nil {
-		fmt.Println("Error writing username")
-		return
-	}
-
-	// TODO suggest either user entry or pw generation
-	fmt.Printf("password\n~> ")
-	_, err = fmt.Scan(&tmp.Pw)
-	if err != nil {
-		fmt.Println("Error writing password")
-		return
-	}
-
-	exists := entryExists(f, tmp)
+	exists := entryExists(tmp, entries)
 	if exists {
-		fmt.Println("Entry already exists")
+		fmt.Println("entry already exists")
 		return
 	}
+	entries = append(entries, tmp)
 
-	buff, err := json.Marshal(tmp)
-	if err != nil {
-		fmt.Println("Error encoding to json")
-		return
-	}
-	buff = append(buff, '\n')
-
-	// assumes flag os.O_APPEND is set on the file
-	_, err = f.Write(buff)
-	if err != nil {
-		fmt.Println("Error writing to file")
-		return
-	}
-
+	writeToFile(fileName, entries)
 }
 
-func ReadEntry(f *os.File, site string) {
-	e := getEntry(f, site)
-	if e == nil {
-		fmt.Println("Entry not found")
-		return
+func ReadEntry(entries []Entry, site string) {
+	for i := range entries {
+		if entries[i].Site == site {
+			fmt.Printf("Site: %s\nUsername: %s\nPassword: %s\n",
+				entries[i].Site, entries[i].Uname, entries[i].Pw)
+			return
+		}
 	}
-
-	fmt.Printf("Site: %s\nUsername: %s\nPassword: %s\n", e.Site, e.Uname, e.Pw)
+	fmt.Println("entry not found")
 }
 
-func UpdateEntry(f *os.File, site string) {
-	e := getEntry(f, site)
-	if e == nil {
-		fmt.Println("Entry not found")
-		return
+func UpdateEntry(fileName string, entries []Entry, site string) {
+	updated := false
+	exists := false
+
+	for i := range entries {
+		if entries[i].Site == site {
+			exists = true
+			e := entries[i]
+			fmt.Println("input new information, leave blank to keep the same")
+			var tmp Entry = buildEntry()
+			if !isValid(tmp) {
+				fmt.Println("error reading your input")
+				return
+			}
+
+			if tmp.Site != e.Site && tmp.Site != "" {
+				entries[i].Site = tmp.Site
+				updated = true
+			}
+			if tmp.Uname != e.Uname && tmp.Uname != "" {
+				entries[i].Uname = tmp.Uname
+				updated = true
+			}
+			if tmp.Pw != e.Pw && tmp.Pw != "" {
+				entries[i].Pw = tmp.Pw
+				updated = true
+			}
+			break
+		}
 	}
-	// https://golang.org/pkg/io/#example_SectionReader_Seek
-	// calculate start position of entry
-	// might be easier to use delete then create
+
+	if updated {
+		writeToFile(fileName, entries)
+	} else {
+		fmt.Println("nothing to update")
+	}
+	if !exists {
+		fmt.Println("entry not found")
+	}
 }
 
-func DeleteEntry(f *os.File, site string) {
+func DeleteEntry(fileName string, entries []Entry, site string) {
+	loop:
+	for i := range entries {
+		if entries[i].Site == site {
+			fmt.Printf("are you sure you want to delete entry %s?\n (y/N)\n~>", site)
+			var confirm string
+			fmt.Scan(&confirm)
+			switch (confirm) {
+			case "y":
+				entries = append(entries[:i], entries[i+1:]...)
+				fmt.Println("deleted entry ", site)
+				writeToFile(fileName, entries)
+				break loop
+			default:
+				fmt.Println("did not delete entry for ", site)
+			}
+		}
+	}
 
 }
