@@ -73,7 +73,6 @@ func entryExists(e Entry, entries []Entry) bool {
 }
 
 // return an empty entry in case of problem
-// TODO fix not accepting empty input
 func buildEntry() Entry {
 	var tmp Entry
 	scanner := bufio.NewScanner(os.Stdin)

@@ -2,7 +2,7 @@ package main
 
 import (
 	// "bufio"
-	// "fmt"
+	"fmt"
 	"os"
 )
 
@@ -11,6 +11,8 @@ func main() {
 	var e = Entry{"zoomer.org", "kevin", "bazinga"}
 
 	entries := loadFile(fileName)
-
+	for i := 0; i < 10; i++ {
+		fmt.Println(genPW(24))
+	}
 	UpdateEntry(fileName, entries, e.Site)
 }

@@ -1,11 +1,11 @@
 # pwm -- Password manager written in Go
 ## functionalities
 + should be run using "pwd [pw database file]"
-+ encrypts the password database file
++ encrypts entries before writing to file
 + CRUD the entries
 + interactive shell prompt (in the fdisk style) 
 + encoding using JSON
-+ decryption on start/encryption on end
++ decryption to memory - file stays encrypted
 
 ## json example 
 ```JSON
@@ -31,16 +31,14 @@
 	+ encrypt([]Entry)
 	+ decrypt([]Entry)
 	+ verifyPassword(password)
+	+ genPW(length)
 + util.go
-	+ jsonParse ? (see: https://blog.golang.org/json-and-go)
-	+ jsonWrite ?
-	+ entryExists
+	+ loadFile
+	+ writeToFile
+	+ isNil(entry)
+	+ createEntry
 	
-## i/o
-I will probably copy file content to memory, in an Entry slice, allowing for easier replacement
-and deletion. The slice will be written to file after each operation. 
-
 ## not yet decided/informed about
-+ encryption and decryption
-+ how to manage the master password
++ ~~encryption and decryption~~ aes
++ ~~how to manage the master password~~ prolly shasum of a master passphrase
 + capture terminal screen

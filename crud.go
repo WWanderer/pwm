@@ -18,7 +18,10 @@ func CreateEntry(fileName string, entries []Entry) {
 	}
 	entries = append(entries, tmp)
 
-	writeToFile(fileName, entries)
+	err := writeToFile(fileName, entries)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func ReadEntry(entries []Entry, site string) {
@@ -40,9 +43,9 @@ func UpdateEntry(fileName string, entries []Entry, site string) {
 		if entries[i].Site == site {
 			exists = true
 			e := entries[i]
-			fmt.Println("input new information, leave blank to keep the same")
+			fmt.Println("input new information for `", e.Site, "`, leave blank to keep the same")
 			var tmp Entry = buildEntry()
-			
+
 			if isNil(tmp) {
 				fmt.Println("nothing changed")
 				return
@@ -65,9 +68,10 @@ func UpdateEntry(fileName string, entries []Entry, site string) {
 	}
 
 	if updated {
-		writeToFile(fileName, entries)
-	} else {
-		fmt.Println("nothing to update")
+		err := writeToFile(fileName, entries)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 	if !exists {
 		fmt.Println("entry not found")
@@ -85,7 +89,10 @@ loop:
 			case "y":
 				entries = append(entries[:i], entries[i+1:]...)
 				fmt.Println("deleted entry ", site)
-				writeToFile(fileName, entries)
+				err := writeToFile(fileName, entries)
+				if err != nil {
+					fmt.Println(err)
+				}
 				break loop
 			default:
 				fmt.Println("did not delete entry for ", site)
