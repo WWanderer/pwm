@@ -36,7 +36,9 @@
 	+ jsonWrite ?
 	+ entryExists
 	
-
+## i/o
+I will probably copy file content to memory, in an Entry slice, allowing for easier replacement
+and deletion. The slice will be written to file after each operation.
 
 ## not yet decided/informed about
 + encryption and decryption

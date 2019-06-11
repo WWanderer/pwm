@@ -1,27 +1,26 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
-	"encoding/json"
 )
 
 func CreateEntry(f *os.File) {
-	
 	var tmp Entry
 
 	fmt.Printf("site name\n~> ")
 	_, err := fmt.Scan(&tmp.Site)
 	if err != nil {
 		fmt.Println("Error writing site name")
-		return 
+		return
 	}
 
 	fmt.Printf("username\n~> ")
 	_, err = fmt.Scan(&tmp.Uname)
 	if err != nil {
 		fmt.Println("Error writing username")
-		return 
+		return
 	}
 
 	// TODO suggest either user entry or pw generation
@@ -29,7 +28,7 @@ func CreateEntry(f *os.File) {
 	_, err = fmt.Scan(&tmp.Pw)
 	if err != nil {
 		fmt.Println("Error writing password")
-		return 
+		return
 	}
 
 	exists := entryExists(f, tmp)
@@ -38,18 +37,18 @@ func CreateEntry(f *os.File) {
 		return
 	}
 
-	b, err := json.Marshal(tmp)
+	buff, err := json.Marshal(tmp)
 	if err != nil {
 		fmt.Println("Error encoding to json")
-		return 
+		return
 	}
-	b = append(b, '\n')
+	buff = append(buff, '\n')
 
 	// assumes flag os.O_APPEND is set on the file
-	_, err = f.Write(b)
+	_, err = f.Write(buff)
 	if err != nil {
 		fmt.Println("Error writing to file")
-		return 
+		return
 	}
 
 }
@@ -68,8 +67,13 @@ func UpdateEntry(f *os.File, site string) {
 	e := getEntry(f, site)
 	if e == nil {
 		fmt.Println("Entry not found")
-		return 
+		return
 	}
-	
+	// https://golang.org/pkg/io/#example_SectionReader_Seek
+	// calculate start position of entry
+	// might be easier to use delete then create
 }
 
+func DeleteEntry(f *os.File, site string) {
+
+}
