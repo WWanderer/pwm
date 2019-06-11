@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -75,34 +76,39 @@ func entryExists(e Entry, entries []Entry) bool {
 // TODO fix not accepting empty input
 func buildEntry() Entry {
 	var tmp Entry
+	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Printf("site name\n~> ")
-	_, err := fmt.Scan(&tmp.Site)
-	if err != nil {
-		fmt.Println(err.Error())
+	scanner.Scan()
+	tmp.Site = scanner.Text()
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "reading standard input:", err)
 		return Entry{}
 	}
 
 	fmt.Printf("username\n~> ")
-	_, err = fmt.Scan(&tmp.Uname)
-	if err != nil {
-		fmt.Println(err.Error())
+	scanner.Scan()
+	tmp.Uname = scanner.Text()
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "reading standard input:", err)
 		return Entry{}
 	}
 
 	// TODO suggest either user entry or pw generation
 	fmt.Printf("password\n~> ")
-	_, err = fmt.Scan(&tmp.Pw)
-	if err != nil {
-		fmt.Println(err.Error())
+	scanner.Scan()
+	tmp.Pw = scanner.Text()
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "reading standard input:", err)
 		return Entry{}
 	}
+
 	return tmp
 }
 
-func isValid(e Entry) bool {
+func isNil(e Entry) bool {
 	if e.Site == "" && e.Uname == "" && e.Pw == "" {
-		return false
+		return true
 	}
-	return true
+	return false
 }

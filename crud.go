@@ -6,7 +6,7 @@ import (
 
 func CreateEntry(fileName string, entries []Entry) {
 	var tmp Entry = buildEntry()
-	if !isValid(tmp) {
+	if isNil(tmp) {
 		fmt.Println("error reading your input")
 		return
 	}
@@ -42,8 +42,9 @@ func UpdateEntry(fileName string, entries []Entry, site string) {
 			e := entries[i]
 			fmt.Println("input new information, leave blank to keep the same")
 			var tmp Entry = buildEntry()
-			if !isValid(tmp) {
-				fmt.Println("error reading your input")
+			
+			if isNil(tmp) {
+				fmt.Println("nothing changed")
 				return
 			}
 
@@ -74,13 +75,13 @@ func UpdateEntry(fileName string, entries []Entry, site string) {
 }
 
 func DeleteEntry(fileName string, entries []Entry, site string) {
-	loop:
+loop:
 	for i := range entries {
 		if entries[i].Site == site {
-			fmt.Printf("are you sure you want to delete entry %s?\n (y/N)\n~>", site)
+			fmt.Printf("are you sure you want to delete entry %s?\n (y/N)\n~> ", site)
 			var confirm string
 			fmt.Scan(&confirm)
-			switch (confirm) {
+			switch confirm {
 			case "y":
 				entries = append(entries[:i], entries[i+1:]...)
 				fmt.Println("deleted entry ", site)

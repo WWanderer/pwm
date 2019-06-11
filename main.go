@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "bufio"
 	// "fmt"
 	"os"
 )
@@ -11,5 +12,5 @@ func main() {
 
 	entries := loadFile(fileName)
 
-	DeleteEntry(fileName, entries, e.Site)
+	UpdateEntry(fileName, entries, e.Site)
 }
