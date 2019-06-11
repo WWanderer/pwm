@@ -17,7 +17,7 @@
 	type Entry struct {
 		Site	string
 		Uname	string
-		Pw 		string
+		Pw 	string
 	}
 ```
 ## file organization
