@@ -1,23 +1,45 @@
 package main
 
 import (
-	"fmt"
 	"github.com/sethvargo/go-password/password"
-	"os"
+	"golang.org/x/crypto/scrypt"
+	"crypto/rand"
+	"crypto/aes"
+	"crypto/cipher"
+	"io"
+	// "os"
 )
-// https://www.thepolyglotdeveloper.com/2018/02/encrypt-decrypt-data-golang-application-crypto-packages/
-func Encrypt(entries []Entry) {}
+
+// http://www.golangprograms.com/cryptography/advanced-encryption-standard.html
+func Encrypt(encodedText []byte, key []byte) []byte {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	ciphertext := make([]byte, aes.BlockSize+len(encodedText))
+	iv := ciphertext[:aes.BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		panic(err)
+	}
+	
+	stream := cipher.NewCTR(block, iv)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], encodedText)
+	return ciphertext
+}
 
 func Decrypt(entries []Entry) {}
 
+// https://godoc.org/github.com/sethvargo/go-password/password
 func genPW(length int) (string, error) {
-	// Generate a password that is length characters long with
-	// length/4 digits, length/4 symbols,
-	// allowing upper and lower case letters, disallowing repeat characters.
-	password, err := password.Generate(length, length/4, length/4, false, true)
-	if err != nil {
-		fmt.Println(err.Error())
-		return "", err
-	}
-	return password, nil
+	password, err := password.Generate(length, length/4, length/4,
+		false, true)
+	return password, err
+}
+
+// https://godoc.org/golang.org/x/crypto/scrypt
+func aesKey(pw []byte) ([]byte, error) {
+	salt := []byte("salt")
+	hash, err := scrypt.Key(pw, salt, 32768, 8, 1, 32)
+	return hash, err
 }
