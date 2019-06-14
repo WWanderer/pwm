@@ -3,32 +3,49 @@ package main
 import (
 	"github.com/sethvargo/go-password/password"
 	"golang.org/x/crypto/scrypt"
-	"crypto/rand"
+)
+import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"io"
-	// "os"
+	"os"
+	"io/ioutil"
 )
 
-// http://www.golangprograms.com/cryptography/advanced-encryption-standard.html
-func Encrypt(encodedText []byte, key []byte) []byte {
+func Encrypt(json []byte, key []byte) []byte {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
-	ciphertext := make([]byte, aes.BlockSize+len(encodedText))
+	ciphertext := make([]byte, aes.BlockSize+len(json))
 	iv := ciphertext[:aes.BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		panic(err)
 	}
-	
-	stream := cipher.NewCTR(block, iv)
-	stream.XORKeyStream(ciphertext[aes.BlockSize:], encodedText)
+
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], json)
 	return ciphertext
 }
 
-func Decrypt(entries []Entry) {}
+// https://gist.github.com/stupidbodo/601b68bfef3449d1b8d9
+func Decrypt(f *os.File, key []byte) []byte {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+	ciphertext, err := ioutil.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+
+	iv := ciphertext[:aes.BlockSize]
+	plaintext := make([]byte, len(ciphertext))
+	stream := cipher.NewCFBDecrypter(block, iv)
+	stream.XORKeyStream(plaintext, ciphertext[aes.BlockSize:])
+	return plaintext
+}
 
 // https://godoc.org/github.com/sethvargo/go-password/password
 func genPW(length int) (string, error) {

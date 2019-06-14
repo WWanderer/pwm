@@ -3,22 +3,23 @@ package main
 import (
 	// "bufio"
 	"fmt"
-	// "os"
+	"os"
 )
+
 // var (
 // 	fileName string
 // 	key []byte
 // )
 
 func main() {
-	// fileName := os.Args[1]
+	fmt.Println("coucou")
+	fileName := os.Args[1]
+	key, _ := aesKey([]byte("hihihi"))
 	// var e = Entry{"zoomer.org", "kevin", "bazinga"}
 
-	// entries := loadFile(fileName)
-	// for i := 0; i < 10; i++ {
-	// 	fmt.Println(genPW(24))
-	// }
-	// UpdateEntry(fileName, entries, e.Site)
-	hash, _ := hashPassword([]byte("tatoux"))
-	fmt.Println(hash)
+	entries := loadFile(fileName,key)
+
+	// CreateEntry(fileName, entries, key)
+	// CreateEntry(fileName, entries, key)
+	ReadEntry(entries, "zoomer")
 }

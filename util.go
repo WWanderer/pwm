@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"io/ioutil"
+	"bytes"
 )
 
 type Entry struct {
@@ -13,33 +15,34 @@ type Entry struct {
 	Pw    string
 }
 
-func openOrCreate(fileName string) (*os.File, error) {
-	return os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, 0644)
-}
-
-func loadFile(fileName string) []Entry {
-	file, err := openOrCreate(fileName)
+// json.Unmarshal could be useful for the rewrite
+func loadFile(fileName string, key []byte) []Entry {
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 	defer file.Close()
-
-	dec := json.NewDecoder(file)
 	var entries []Entry
+	if !isEmpty(file) {
+		content := Decrypt(file, key)
 
-	for dec.More() {
-		var e Entry
-		if err := dec.Decode(&e); err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+		reader := bytes.NewReader(content)
+		dec := json.NewDecoder(reader)	
+
+		for dec.More() {
+			var e Entry
+			if err := dec.Decode(&e); err != nil {
+				fmt.Println(err.Error())
+				os.Exit(1)
+			}
+			entries = append(entries, e)
 		}
-		entries = append(entries, e)
 	}
 	return entries
 }
 
-func writeToFile(fileName string, entries []Entry) error {
+func writeFile(fileName string, entries []Entry, key []byte) error {
 	var buffer [][]byte
 
 	var file, err = os.OpenFile(fileName, os.O_RDWR|os.O_TRUNC, 0644)
@@ -49,26 +52,30 @@ func writeToFile(fileName string, entries []Entry) error {
 	}
 	defer file.Close()
 
+	// TODO write separate function for json encoding
 	for _, entry := range entries {
-		// encode each entry to json
 		e, err := json.Marshal(entry)
 		if err != nil {
 			fmt.Println(err.Error())
 			return err
 		}
 		e = append(e, '\n')
-		// put them in a buffer
 		buffer = append(buffer, e)
 	}
 	// TODO encrypt buffer
-	// write buffer to file
 	for i := range buffer {
-		file.Write(buffer[i])
+		encrypted := Encrypt(buffer[i], key)
+		file.Write(encrypted)
 	}
 	return nil
 }
 
 func entryExists(e Entry, entries []Entry) bool {
+	for _, entry := range entries {
+		if entry.Site == e.Site {
+			return true
+		}
+	}
 	return false
 }
 
@@ -110,4 +117,12 @@ func isNil(e Entry) bool {
 		return true
 	}
 	return false
+}
+
+func isEmpty(f *os.File) bool {
+	content, _ := ioutil.ReadAll(f)
+	if len(content) != 0 {
+		return false
+	}
+	return true
 }

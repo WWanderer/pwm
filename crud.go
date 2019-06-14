@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func CreateEntry(fileName string, entries []Entry) {
+func CreateEntry(fileName string, entries []Entry, key []byte) {
 	var tmp Entry = buildEntry()
 	if isNil(tmp) {
 		fmt.Println("error reading your input")
@@ -18,7 +18,7 @@ func CreateEntry(fileName string, entries []Entry) {
 	}
 	entries = append(entries, tmp)
 
-	err := writeToFile(fileName, entries)
+	err := writeFile(fileName, entries, key)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -35,7 +35,7 @@ func ReadEntry(entries []Entry, site string) {
 	fmt.Println("entry not found")
 }
 
-func UpdateEntry(fileName string, entries []Entry, site string) {
+func UpdateEntry(fileName string, entries []Entry, site string, key []byte) {
 	updated := false
 	exists := false
 
@@ -68,7 +68,7 @@ func UpdateEntry(fileName string, entries []Entry, site string) {
 	}
 
 	if updated {
-		err := writeToFile(fileName, entries)
+		err := writeFile(fileName, entries, key)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -78,7 +78,7 @@ func UpdateEntry(fileName string, entries []Entry, site string) {
 	}
 }
 
-func DeleteEntry(fileName string, entries []Entry, site string) {
+func DeleteEntry(fileName string, entries []Entry, site string, key []byte) {
 loop:
 	for i := range entries {
 		if entries[i].Site == site {
@@ -89,13 +89,14 @@ loop:
 			case "y":
 				entries = append(entries[:i], entries[i+1:]...)
 				fmt.Println("deleted entry ", site)
-				err := writeToFile(fileName, entries)
+				err := writeFile(fileName, entries, key)
 				if err != nil {
 					fmt.Println(err)
 				}
 				break loop
 			default:
 				fmt.Println("did not delete entry for ", site)
+				break loop
 			}
 		}
 	}
