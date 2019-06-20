@@ -9,11 +9,9 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"io"
-	"os"
-	"io/ioutil"
 )
 
-func Encrypt(json []byte, key []byte) []byte {
+func Encrypt(json, key []byte) []byte {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		panic(err)
@@ -24,26 +22,21 @@ func Encrypt(json []byte, key []byte) []byte {
 		panic(err)
 	}
 
-	stream := cipher.NewCFBEncrypter(block, iv)
+	stream := cipher.NewCTR(block, iv)
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], json)
 	return ciphertext
 }
 
-// https://gist.github.com/stupidbodo/601b68bfef3449d1b8d9
-func Decrypt(f *os.File, key []byte) []byte {
+func Decrypt(ciphertext, key []byte) []byte {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		panic(err)
 	}
-	ciphertext, err := ioutil.ReadAll(f)
-	if err != nil {
-		panic(err)
-	}
-
-	iv := ciphertext[:aes.BlockSize]
 	plaintext := make([]byte, len(ciphertext))
-	stream := cipher.NewCFBDecrypter(block, iv)
+	iv := ciphertext[:aes.BlockSize]
+	stream := cipher.NewCTR(block, iv)
 	stream.XORKeyStream(plaintext, ciphertext[aes.BlockSize:])
+
 	return plaintext
 }
 

@@ -17,9 +17,9 @@ func main() {
 	key, _ := aesKey([]byte("hihihi"))
 	// var e = Entry{"zoomer.org", "kevin", "bazinga"}
 
-	entries := loadFile(fileName,key)
+	entries := loadFile(fileName, key)
 
-	// CreateEntry(fileName, entries, key)
-	// CreateEntry(fileName, entries, key)
+	CreateEntry(fileName, entries, key)
+	CreateEntry(fileName, entries, key)
 	ReadEntry(entries, "zoomer")
 }

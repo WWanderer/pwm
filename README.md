@@ -30,7 +30,7 @@
 + crypto.go
 	+ encrypt([]Entry)
 	+ decrypt([]Entry)
-	+ verifyPassword(password)
+	+ aesKey(password)
 	+ genPW(length)
 + util.go
 	+ loadFile
@@ -40,5 +40,5 @@
 	
 ## not yet decided/informed about
 + ~~encryption and decryption~~ aes
-+ ~~how to manage the master password~~ prolly shasum of a master passphrase
++ ~~how to manage the master password~~ scrypt
 + capture terminal screen

@@ -2,11 +2,11 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
 	"io/ioutil"
-	"bytes"
+	"os"
 )
 
 type Entry struct {
@@ -19,36 +19,38 @@ type Entry struct {
 func loadFile(fileName string, key []byte) []Entry {
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		panic(err)
 	}
 	defer file.Close()
+
 	var entries []Entry
-	if !isEmpty(file) {
-		content := Decrypt(file, key)
+
+	ciphertext, empty := isEmpty(file)
+	if !empty {
+		content := Decrypt(ciphertext, key)
+		fmt.Println(string(content))
 
 		reader := bytes.NewReader(content)
-		dec := json.NewDecoder(reader)	
+		dec := json.NewDecoder(reader)
 
 		for dec.More() {
 			var e Entry
 			if err := dec.Decode(&e); err != nil {
-				fmt.Println(err.Error())
-				os.Exit(1)
+				panic(err)
 			}
 			entries = append(entries, e)
+			fmt.Println(entries)
 		}
 	}
 	return entries
 }
 
 func writeFile(fileName string, entries []Entry, key []byte) error {
-	var buffer [][]byte
+	var buffer bytes.Buffer
 
 	var file, err = os.OpenFile(fileName, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
-		fmt.Println(err.Error())
-		return err
+		panic(err)
 	}
 	defer file.Close()
 
@@ -60,13 +62,20 @@ func writeFile(fileName string, entries []Entry, key []byte) error {
 			return err
 		}
 		e = append(e, '\n')
-		buffer = append(buffer, e)
+		_, err = buffer.Write(e)
+		if err != nil {
+			fmt.Println(err.Error())
+			return err
+		}
 	}
-	// TODO encrypt buffer
-	for i := range buffer {
-		encrypted := Encrypt(buffer[i], key)
-		file.Write(encrypted)
+
+	jsonBuf := buffer.Bytes()
+	encrypted := Encrypt(jsonBuf, key)
+	_, err = file.Write(encrypted)
+	if err != nil {
+		panic(err)
 	}
+	file.Sync()
 	return nil
 }
 
@@ -119,10 +128,13 @@ func isNil(e Entry) bool {
 	return false
 }
 
-func isEmpty(f *os.File) bool {
-	content, _ := ioutil.ReadAll(f)
-	if len(content) != 0 {
-		return false
+func isEmpty(f *os.File) ([]byte, bool) {
+	content, err := ioutil.ReadAll(f)
+	if err != nil {
+		panic(err)
 	}
-	return true
+	if len(content) != 0 {
+		return content, false
+	}
+	return []byte(""), true
 }

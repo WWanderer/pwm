@@ -5,7 +5,7 @@ import (
 )
 
 func CreateEntry(fileName string, entries []Entry, key []byte) {
-	var tmp Entry = buildEntry()
+	tmp := buildEntry()
 	if isNil(tmp) {
 		fmt.Println("error reading your input")
 		return
@@ -20,7 +20,7 @@ func CreateEntry(fileName string, entries []Entry, key []byte) {
 
 	err := writeFile(fileName, entries, key)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 }
 
@@ -91,7 +91,7 @@ loop:
 				fmt.Println("deleted entry ", site)
 				err := writeFile(fileName, entries, key)
 				if err != nil {
-					fmt.Println(err)
+					panic(err)
 				}
 				break loop
 			default:
