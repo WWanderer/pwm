@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 )
@@ -14,17 +13,19 @@ var (
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		log.Fatal("Usage: pwd <password database>")
-	}
-	fileName = os.Args[1]
 	scanner := bufio.NewScanner(os.Stdin)
-
-	fmt.Printf("enter your password\n~> ")
-	scanner.Scan()
-	key = aesKey([]byte(scanner.Text()))
-
-	entries := loadFile(fileName, key)
+	entries := []Entry{}
+	if len(os.Args) != 2 {
+		var password []byte
+		fileName, password = newFile()
+		key = aesKey(password)
+	} else {
+		fileName = os.Args[1]
+		fmt.Printf("enter your password\n~> ")
+		scanner.Scan()
+		key = aesKey([]byte(scanner.Text()))
+		entries = loadFile(fileName, key)
+	}
 
 	for {
 		fmt.Printf("Enter a command:\n")
@@ -33,12 +34,11 @@ func main() {
 		scanner.Scan()
 		command := []string{""}
 		if scanner.Text() != "" {
-			lowerCase := strings.ToLower(scanner.Text())
-			command = strings.Fields(lowerCase)
+			command = strings.Fields(scanner.Text())
 		}
 		switch command[0] {
 		case "c":
-			if len(command) > 1 {
+			if len(command) != 1 {
 				fmt.Println("usage: c")
 				continue
 			}

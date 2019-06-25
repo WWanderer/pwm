@@ -15,6 +15,50 @@ type Entry struct {
 	Pw    string
 }
 
+func newFile() (string, []byte) {
+	fmt.Println("You did not provide a password database file.")
+	fmt.Println("If you forgot to provide it, enter 'q' to exit pwm.")
+	fmt.Println("If you want to create a new file enter 'n'.")
+
+	scanner := bufio.NewScanner(os.Stdin)
+	var name string
+	var pw []byte
+
+	for {
+		scanner.Scan()
+		switch scanner.Text() {
+		case "q":
+			os.Exit(0)
+		case "n":
+			fmt.Println("Enter the name you want to give your database file")
+			scanner.Scan()
+			name = scanner.Text()
+			for {
+				fmt.Println("Enter the password for your database file. Be careful, it cannot be recovered if you lose it.")
+				scanner.Scan()
+				pw = []byte(scanner.Text())
+				fmt.Println("confirm")
+				scanner.Scan()
+				confirm := []byte(scanner.Text())
+				if bytes.Equal(pw, confirm) {
+					break
+				}
+				fmt.Println("passwords do not match each other")
+
+			}
+			file, err := os.OpenFile(name, os.O_CREATE|os.O_RDWR, 0644)
+			if err != nil {
+				panic(err)
+			}
+			defer file.Close()
+			return name, pw
+		default:
+			continue
+		}
+	}
+
+}
+
 func loadFile(fileName string, key []byte) []Entry {
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {

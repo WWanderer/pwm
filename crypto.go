@@ -19,15 +19,18 @@ func Encrypt(json, key []byte) []byte {
 	if err != nil {
 		panic(err)
 	}
-	ciphertext := make([]byte, aes.BlockSize+len(json))
-	iv := ciphertext[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
 		panic(err)
 	}
 
-	stream := cipher.NewCTR(block, iv)
-	stream.XORKeyStream(ciphertext[aes.BlockSize:], json)
-	return ciphertext
+	nonce := make([]byte, gcm.NonceSize())
+	_, err = io.ReadFull(rand.Reader, nonce)
+	if err != nil {
+		panic(err)
+	}
+
+	return gcm.Seal(nonce, nonce, json, nil)
 }
 
 func Decrypt(ciphertext, key []byte) []byte {
@@ -35,11 +38,21 @@ func Decrypt(ciphertext, key []byte) []byte {
 	if err != nil {
 		panic(err)
 	}
-	plaintext := make([]byte, len(ciphertext))
-	iv := ciphertext[:aes.BlockSize]
-	stream := cipher.NewCTR(block, iv)
-	stream.XORKeyStream(plaintext, ciphertext[aes.BlockSize:])
 
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		panic(err)
+	}
+	if len(ciphertext) < gcm.NonceSize() {
+		panic(err)
+	}
+	plaintext, err := gcm.Open(nil,
+		ciphertext[:gcm.NonceSize()],
+		ciphertext[gcm.NonceSize():],
+		nil)
+	if err != nil {
+		panic(err)
+	}
 	return plaintext
 }
 
