@@ -15,7 +15,6 @@ type Entry struct {
 	Pw    string
 }
 
-// json.Unmarshal could be useful for the rewrite
 func loadFile(fileName string, key []byte) []Entry {
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
@@ -28,7 +27,6 @@ func loadFile(fileName string, key []byte) []Entry {
 	ciphertext, empty := isEmpty(file)
 	if !empty {
 		content := Decrypt(ciphertext, key)
-		fmt.Println(string(content))
 
 		reader := bytes.NewReader(content)
 		dec := json.NewDecoder(reader)
@@ -36,10 +34,9 @@ func loadFile(fileName string, key []byte) []Entry {
 		for dec.More() {
 			var e Entry
 			if err := dec.Decode(&e); err != nil {
-				panic(err)
+				break
 			}
 			entries = append(entries, e)
-			fmt.Println(entries)
 		}
 	}
 	return entries
@@ -61,7 +58,6 @@ func writeFile(fileName string, entries []Entry, key []byte) error {
 			fmt.Println(err.Error())
 			return err
 		}
-		e = append(e, '\n')
 		_, err = buffer.Write(e)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -88,7 +84,6 @@ func entryExists(e Entry, entries []Entry) bool {
 	return false
 }
 
-// return an empty entry in case of problem
 func buildEntry() Entry {
 	var tmp Entry
 	scanner := bufio.NewScanner(os.Stdin)
@@ -109,13 +104,19 @@ func buildEntry() Entry {
 		return Entry{}
 	}
 
-	// TODO suggest either user entry or pw generation
-	fmt.Printf("password\n~> ")
+	fmt.Println("do you want to automatically generate a password? [y]/n")
 	scanner.Scan()
-	tmp.Pw = scanner.Text()
-	if err := scanner.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "reading standard input:", err)
-		return Entry{}
+	switch scanner.Text() {
+	case "n":
+		fmt.Printf("password\n~> ")
+		scanner.Scan()
+		tmp.Pw = scanner.Text()
+		if err := scanner.Err(); err != nil {
+			fmt.Fprintln(os.Stderr, "reading standard input:", err)
+			return Entry{}
+		}
+	default:
+		tmp.Pw = genPW(16)
 	}
 
 	return tmp

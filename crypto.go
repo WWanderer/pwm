@@ -11,6 +11,9 @@ import (
 	"io"
 )
 
+// possible switch to https://github.com/gtank/cryptopasta/blob/master/encrypt.go
+// because these don't fail on wrong password
+
 func Encrypt(json, key []byte) []byte {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -41,15 +44,21 @@ func Decrypt(ciphertext, key []byte) []byte {
 }
 
 // https://godoc.org/github.com/sethvargo/go-password/password
-func genPW(length int) (string, error) {
+func genPW(length int) string {
 	password, err := password.Generate(length, length/4, length/4,
 		false, true)
-	return password, err
+	if err != nil {
+		panic(err)
+	}
+	return password
 }
 
 // https://godoc.org/golang.org/x/crypto/scrypt
-func aesKey(pw []byte) ([]byte, error) {
+func aesKey(pw []byte) []byte {
 	salt := []byte("salt")
 	hash, err := scrypt.Key(pw, salt, 32768, 8, 1, 32)
-	return hash, err
+	if err != nil {
+		panic(err)
+	}
+	return hash
 }

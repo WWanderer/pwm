@@ -4,17 +4,17 @@ import (
 	"fmt"
 )
 
-func CreateEntry(fileName string, entries []Entry, key []byte) {
+func CreateEntry(fileName string, entries []Entry, key []byte) []Entry {
 	tmp := buildEntry()
 	if isNil(tmp) {
 		fmt.Println("error reading your input")
-		return
+		return entries
 	}
 
 	exists := entryExists(tmp, entries)
 	if exists {
 		fmt.Println("entry already exists")
-		return
+		return entries
 	}
 	entries = append(entries, tmp)
 
@@ -22,6 +22,7 @@ func CreateEntry(fileName string, entries []Entry, key []byte) {
 	if err != nil {
 		panic(err)
 	}
+	return entries
 }
 
 func ReadEntry(entries []Entry, site string) {
@@ -35,7 +36,7 @@ func ReadEntry(entries []Entry, site string) {
 	fmt.Println("entry not found")
 }
 
-func UpdateEntry(fileName string, entries []Entry, site string, key []byte) {
+func UpdateEntry(fileName string, entries []Entry, site string, key []byte) []Entry {
 	updated := false
 	exists := false
 
@@ -48,7 +49,7 @@ func UpdateEntry(fileName string, entries []Entry, site string, key []byte) {
 
 			if isNil(tmp) {
 				fmt.Println("nothing changed")
-				return
+				return entries
 			}
 
 			if tmp.Site != e.Site && tmp.Site != "" {
@@ -76,9 +77,10 @@ func UpdateEntry(fileName string, entries []Entry, site string, key []byte) {
 	if !exists {
 		fmt.Println("entry not found")
 	}
+	return entries
 }
 
-func DeleteEntry(fileName string, entries []Entry, site string, key []byte) {
+func DeleteEntry(fileName string, entries []Entry, site string, key []byte) []Entry {
 loop:
 	for i := range entries {
 		if entries[i].Site == site {
@@ -100,5 +102,16 @@ loop:
 			}
 		}
 	}
+	return entries
+}
 
+func PrintSites(entries []Entry) {
+	fmt.Printf("Sites: \n")
+	for i := range entries {
+		if i%4 == 0 {
+			fmt.Println()
+		}
+		fmt.Printf("%s\t", entries[i].Site)
+	}
+	fmt.Println()
 }
