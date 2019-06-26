@@ -5,9 +5,10 @@
 + CRUD the entries
 
 ## TODOS:
-+ fail on wrong password
++ ~~fail on wrong password~~
 + erase screen after use
-+ file creation prompt
++ ~~file creation prompt~~
++ hide password input text
 
 ## not yet decided/informed about
 + ~~encryption and decryption~~ aes
