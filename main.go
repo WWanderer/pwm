@@ -1,5 +1,6 @@
 package main
 
+import "github.com/howeyc/gopass"
 import (
 	"bufio"
 	"fmt"
@@ -22,8 +23,8 @@ func main() {
 	} else {
 		fileName = os.Args[1]
 		fmt.Printf("enter your password\n~> ")
-		scanner.Scan()
-		key = aesKey([]byte(scanner.Text()))
+		pw, _ := gopass.GetPasswdMasked()
+		key = aesKey(pw)
 		entries = loadFile(fileName, key)
 	}
 

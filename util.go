@@ -1,5 +1,6 @@
 package main
 
+import "github.com/howeyc/gopass"
 import (
 	"bufio"
 	"bytes"
@@ -15,6 +16,7 @@ type Entry struct {
 	Pw    string
 }
 
+// https://github.com/howeyc/gopass
 func newFile() (string, []byte) {
 	fmt.Println("You did not provide a password database file.")
 	fmt.Println("If you forgot to provide it, enter 'q' to exit pwm.")
@@ -35,16 +37,14 @@ func newFile() (string, []byte) {
 			name = scanner.Text()
 			for {
 				fmt.Println("Enter the password for your database file. Be careful, it cannot be recovered if you lose it.")
-				scanner.Scan()
-				pw = []byte(scanner.Text())
+				pw, _ = gopass.GetPasswdMasked()
 				fmt.Println("confirm")
-				scanner.Scan()
-				confirm := []byte(scanner.Text())
+				confirm, _ := gopass.GetPasswdMasked()
+
 				if bytes.Equal(pw, confirm) {
 					break
 				}
 				fmt.Println("passwords do not match each other")
-
 			}
 			file, err := os.OpenFile(name, os.O_CREATE|os.O_RDWR, 0644)
 			if err != nil {
