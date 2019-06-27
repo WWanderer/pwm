@@ -1,6 +1,6 @@
 # pwm -- Password manager written in Go
 ## functionalities
-+ should be run using "pwd [pw database file]"
++ should be run using "pwd [pw database file]" or just "pwd" the first time
 + file encryption
 + CRUD the entries
 
@@ -8,7 +8,7 @@
 + ~~fail on wrong password~~
 + erase screen after use
 + ~~file creation prompt~~
-+ hide password input text
++ ~~hide password input text~~
 
 ## not yet decided/informed about
 + ~~encryption and decryption~~ aes
