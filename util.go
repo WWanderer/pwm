@@ -70,7 +70,7 @@ func loadFile(fileName string, key []byte) []Entry {
 
 	ciphertext, empty := isEmpty(file)
 	if !empty {
-		content := Decrypt(ciphertext, key)
+		content := decrypt(ciphertext, key)
 
 		reader := bytes.NewReader(content)
 		dec := json.NewDecoder(reader)
@@ -110,7 +110,7 @@ func writeFile(fileName string, entries []Entry, key []byte) error {
 	}
 
 	jsonBuf := buffer.Bytes()
-	encrypted := Encrypt(jsonBuf, key)
+	encrypted := encrypt(jsonBuf, key)
 	_, err = file.Write(encrypted)
 	if err != nil {
 		panic(err)

@@ -43,31 +43,31 @@ func main() {
 				fmt.Println("usage: c")
 				continue
 			}
-			entries = CreateEntry(fileName, entries, key)
+			entries = createEntry(fileName, entries, key)
 		case "r":
 			if len(command) != 2 {
 				fmt.Println("usage: r <sitename>")
 				continue
 			}
-			ReadEntry(entries, command[1])
+			readEntry(entries, command[1])
 		case "u":
 			if len(command) != 2 {
 				fmt.Println("usage: u <sitename>")
 				continue
 			}
-			entries = UpdateEntry(fileName, entries, command[1], key)
+			entries = updateEntry(fileName, entries, command[1], key)
 		case "d":
 			if len(command) != 2 {
 				fmt.Println("usage: d <sitename>")
 				continue
 			}
-			entries = DeleteEntry(fileName, entries, command[1], key)
+			entries = deleteEntry(fileName, entries, command[1], key)
 		case "l":
 			if len(command) != 1 {
 				fmt.Println("usage: l")
 				continue
 			}
-			PrintSites(entries)
+			printSites(entries)
 		case "q":
 			os.Exit(0)
 		default:

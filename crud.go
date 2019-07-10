@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func CreateEntry(fileName string, entries []Entry, key []byte) []Entry {
+func createEntry(fileName string, entries []Entry, key []byte) []Entry {
 	tmp := buildEntry()
 	if isNil(tmp) {
 		fmt.Println("error reading your input")
@@ -25,7 +25,7 @@ func CreateEntry(fileName string, entries []Entry, key []byte) []Entry {
 	return entries
 }
 
-func ReadEntry(entries []Entry, site string) {
+func readEntry(entries []Entry, site string) {
 	for i := range entries {
 		if entries[i].Site == site {
 			fmt.Printf("Site: %s\nUsername: %s\nPassword: %s\n",
@@ -36,7 +36,7 @@ func ReadEntry(entries []Entry, site string) {
 	fmt.Println("entry not found")
 }
 
-func UpdateEntry(fileName string, entries []Entry, site string, key []byte) []Entry {
+func updateEntry(fileName string, entries []Entry, site string, key []byte) []Entry {
 	updated := false
 	exists := false
 
@@ -80,7 +80,7 @@ func UpdateEntry(fileName string, entries []Entry, site string, key []byte) []En
 	return entries
 }
 
-func DeleteEntry(fileName string, entries []Entry, site string, key []byte) []Entry {
+func deleteEntry(fileName string, entries []Entry, site string, key []byte) []Entry {
 loop:
 	for i := range entries {
 		if entries[i].Site == site {
@@ -105,7 +105,7 @@ loop:
 	return entries
 }
 
-func PrintSites(entries []Entry) {
+func printSites(entries []Entry) {
 	fmt.Printf("Sites: \n")
 	for i := range entries {
 		if i%4 == 0 {

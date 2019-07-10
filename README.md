@@ -6,7 +6,7 @@
 
 ## TODOS:
 + ~~fail on wrong password~~
-+ erase screen after use
++ ~~erase screen after use~~ output is stdout -> not logged, dissapears on terminal closing
 + ~~file creation prompt~~
 + ~~hide password input text~~
 
